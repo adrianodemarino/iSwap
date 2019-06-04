@@ -198,66 +198,68 @@ def wabbly(guru,output):
         #Se IS ha tutti 1 come seq_count = BUTTA 
         if i.seq_count.nunique() == 1 and i.seq_count.unique()[0] == 1:
             continue #non salvare questa integrazione
-        elif paradox(i.shearsite.count()) < 0.5:
-            i.association_ID = i.association_ID.astype(object)
-            #per ogni campione controllo lo wobbling dello shearsite
-            for s1,s1_df in i.groupby('association_ID'):
-                #cluster dello wabbling
-                gruppos = cluster(s1_df.shearsite.values,5)
-                '''
-                per ogni gruppo unisco poiche si trovano molto vicini tra di loro ed essendo pochi per essere
-                entrati in questo if allora significa che e' altamente improbabile che questa cosa sia successa per caso
-                ma e' dovuta ad un errore di wabbling
-                '''
-                for grb in gruppos:
-                    datafram_small = s1_df[s1_df.shearsite.isin(grb)]
-                    x = datafram_small.groupby(['association_ID'])
-                    ss1 = x.sum().dropna(0).drop('shearsite',axis=1)
-                    ssh = x.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
-                    LC2 = x.apply(lambda subf: subf['LC'][subf['seq_count'].idxmax()])
-                    LTR1 = x.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
-                    try:
-                        randomBC1 = x.apply(lambda subf: subf['randomBC'][subf['seq_count'].idxmax()])
-                        wabbling = pd.concat([ssh,LC2,LTR1,randomBC1,ss1],1).reset_index()
-                        wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
-                        wabbling.columns = ['association_ID','shearsite','LC','LTR','randomBC', 'seq_count','genomic_coordinates']
-                        wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
-                    except Exception as e:
-                        wabbling = pd.concat([ssh,LC2,LTR1,ss1],1).reset_index()
-                        wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
-                        wabbling.columns = ['association_ID','shearsite','LC','LTR', 'seq_count','genomic_coordinates']
-                        wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'seq_count','LTR','LC']]
-                    output.append(wabbling)
-        elif paradox(i.shearsite.count()) > 0.5:
-            i.association_ID = i.association_ID.astype(object)
-            #per ogni campione controllo lo wobbling dello shearsite
-            for s1,s1_df in i.groupby('association_ID'):
-                #cluster dello wabbling
-                gruppos = cluster(s1_df.shearsite.values,2)
-                '''
-                per ogni gruppo unisco poiche si trovano molto vicini tra di loro ed essendo pochi per essere
-                entrati in questo if allora significa che e' altamente improbabile che questa cosa sia successa per caso
-                ma e' dovuta ad un errore di wabbling
-                '''
-                for grb in gruppos:
-                    datafram_small = s1_df[s1_df.shearsite.isin(grb)]
-                    x = datafram_small.groupby(['association_ID'])
-                    ss1 = x.sum().dropna(0).drop('shearsite',axis=1)
-                    ssh = x.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
-                    LC2 = x.apply(lambda subf: subf['LC'][subf['seq_count'].idxmax()])
-                    LTR1 = x.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
-                    try:
-                        randomBC1 = x.apply(lambda subf: subf['randomBC'][subf['seq_count'].idxmax()])
-                        wabbling = pd.concat([ssh,LC2,LTR1,randomBC1,ss1],1).reset_index()
-                        wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
-                        wabbling.columns = ['association_ID','shearsite','LC','LTR','randomBC', 'seq_count','genomic_coordinates']
-                        wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
-                    except Exception as e:
-                        wabbling = pd.concat([ssh,LC2,LTR1,ss1],1).reset_index()
-                        wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
-                        wabbling.columns = ['association_ID','shearsite','LC','LTR', 'seq_count','genomic_coordinates']
-                        wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'seq_count','LTR','LC']]
-                    output.append(wabbling)
+        else:
+            output.append(i)
+        # elif paradox(i.shearsite.count()) < 0.5:
+        #     i.association_ID = i.association_ID.astype(object)
+        #     #per ogni campione controllo lo wobbling dello shearsite
+        #     for s1,s1_df in i.groupby('association_ID'):
+        #         #cluster dello wabbling
+        #         gruppos = cluster(s1_df.shearsite.values,5)
+        #         '''
+        #         per ogni gruppo unisco poiche si trovano molto vicini tra di loro ed essendo pochi per essere
+        #         entrati in questo if allora significa che e' altamente improbabile che questa cosa sia successa per caso
+        #         ma e' dovuta ad un errore di wabbling
+        #         '''
+        #         for grb in gruppos:
+        #             datafram_small = s1_df[s1_df.shearsite.isin(grb)]
+        #             x = datafram_small.groupby(['association_ID'])
+        #             ss1 = x.sum().dropna(0).drop('shearsite',axis=1)
+        #             ssh = x.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
+        #             LC2 = x.apply(lambda subf: subf['LC'][subf['seq_count'].idxmax()])
+        #             LTR1 = x.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
+        #             try:
+        #                 randomBC1 = x.apply(lambda subf: subf['randomBC'][subf['seq_count'].idxmax()])
+        #                 wabbling = pd.concat([ssh,LC2,LTR1,randomBC1,ss1],1).reset_index()
+        #                 wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
+        #                 wabbling.columns = ['association_ID','shearsite','LC','LTR','randomBC', 'seq_count','genomic_coordinates']
+        #                 wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
+        #             except Exception as e:
+        #                 wabbling = pd.concat([ssh,LC2,LTR1,ss1],1).reset_index()
+        #                 wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
+        #                 wabbling.columns = ['association_ID','shearsite','LC','LTR', 'seq_count','genomic_coordinates']
+        #                 wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'seq_count','LTR','LC']]
+        #             output.append(wabbling)
+        # elif paradox(i.shearsite.count()) > 0.5:
+        #     i.association_ID = i.association_ID.astype(object)
+        #     #per ogni campione controllo lo wobbling dello shearsite
+        #     for s1,s1_df in i.groupby('association_ID'):
+        #         #cluster dello wabbling
+        #         gruppos = cluster(s1_df.shearsite.values,2)
+        #         '''
+        #         per ogni gruppo unisco poiche si trovano molto vicini tra di loro ed essendo pochi per essere
+        #         entrati in questo if allora significa che e' altamente improbabile che questa cosa sia successa per caso
+        #         ma e' dovuta ad un errore di wabbling
+        #         '''
+        #         for grb in gruppos:
+        #             datafram_small = s1_df[s1_df.shearsite.isin(grb)]
+        #             x = datafram_small.groupby(['association_ID'])
+        #             ss1 = x.sum().dropna(0).drop('shearsite',axis=1)
+        #             ssh = x.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
+        #             LC2 = x.apply(lambda subf: subf['LC'][subf['seq_count'].idxmax()])
+        #             LTR1 = x.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
+        #             try:
+        #                 randomBC1 = x.apply(lambda subf: subf['randomBC'][subf['seq_count'].idxmax()])
+        #                 wabbling = pd.concat([ssh,LC2,LTR1,randomBC1,ss1],1).reset_index()
+        #                 wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
+        #                 wabbling.columns = ['association_ID','shearsite','LC','LTR','randomBC', 'seq_count','genomic_coordinates']
+        #                 wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
+        #             except Exception as e:
+        #                 wabbling = pd.concat([ssh,LC2,LTR1,ss1],1).reset_index()
+        #                 wabbling['genomic_coordinates'] = datafram_small.iloc[0].genomic_coordinates
+        #                 wabbling.columns = ['association_ID','shearsite','LC','LTR', 'seq_count','genomic_coordinates']
+        #                 wabbling = wabbling[['association_ID', 'genomic_coordinates','shearsite', 'seq_count','LTR','LC']]
+        #             output.append(wabbling)
     # return pd.concat(output)
 
 def swap_LTR(job_id, data_slice, return_dict, events):
@@ -265,37 +267,26 @@ def swap_LTR(job_id, data_slice, return_dict, events):
         test = gb[['association_ID','seq_count']].copy().groupby('association_ID').sum()
         inizio = test[test.seq_count > 0].to_dict()['seq_count']
         sos = gb.copy()
-        try: #se ci sta lo umi
-            y = sos.groupby(['randomBC','LC'])
-            ss2 = y.sum().drop('shearsite',axis=1).dropna(0)
-            shearsite1 = y.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
-            nome2 = y.apply(lambda subf: subf['association_ID'][subf['seq_count'].idxmax()])
-            LTR1 = y.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
-            swapLTR = pd.concat([nome2,LTR1,shearsite1,ss2],1).reset_index()
-            swapLTR['genomic_coordinates'] = gb.iloc[0].genomic_coordinates
-            swapLTR.columns = ['randomBC','LC','association_ID','LTR','shearsite', 'seq_count','genomic_coordinates']
-            swapLTR = swapLTR[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
-            umi_edi = swapLTR.randomBC.values
-            for comb in combinations(umi_edi,2):
-                if editdistance.eval(comb[0],comb[1]) < 3:
-                    _new_ = swapLTR[swapLTR.randomBC.isin(list(comb))]
-                    swapLTR_edit = (_new_[_new_.seq_count == _new_.seq_count.max() ]).reset_index(drop=True)
-                    swapLTR_edit.loc[0,'seq_count'] = _new_.seq_count.sum()
-                    swapLTR = swapLTR[~swapLTR.randomBC.isin(list(comb))]
-                    swapLTR = pd.concat([swapLTR_edit,swapLTR],sort=False)
-                    swapLTR = swapLTR.dropna()
-            ### in questo pezzo controlla se ci sono swap che non hanno in comune UMI  
-        except Exception as e: #se NON ci sta lo umi
-            y = sos.groupby(['shearsite','LC'])
-            ss2 = y.sum().dropna(0)
-            nome2 = y.apply(lambda subf: subf['association_ID'][subf['seq_count'].idxmax()])
-            LTR1 = y.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
-            swapLTR = pd.concat([nome2,LTR1,ss2],1).reset_index()
-            swapLTR['genomic_coordinates'] = gb.iloc[0].genomic_coordinates
-            swapLTR.columns = ['shearsite','LC','association_ID','LTR','seq_count','genomic_coordinates']
-            swapLTR = swapLTR[['association_ID', 'genomic_coordinates','shearsite', 'seq_count','LTR','LC']]
-
-
+        y = sos.groupby(['randomBC','LC'])
+        ss2 = y.sum().drop('shearsite',axis=1).dropna(0)
+        shearsite1 = y.apply(lambda subf: subf['shearsite'][subf['seq_count'].idxmax()])
+        nome2 = y.apply(lambda subf: subf['association_ID'][subf['seq_count'].idxmax()])
+        LTR1 = y.apply(lambda subf: subf['LTR'][subf['seq_count'].idxmax()])
+        swapLTR = pd.concat([nome2,LTR1,shearsite1,ss2],1).reset_index()
+        swapLTR['genomic_coordinates'] = gb.iloc[0].genomic_coordinates
+        swapLTR.columns = ['randomBC','LC','association_ID','LTR','shearsite', 'seq_count','genomic_coordinates']
+        swapLTR = swapLTR[['association_ID', 'genomic_coordinates','shearsite', 'randomBC', 'seq_count','LTR','LC']]
+        
+        #Parte di edit distance
+        umi_edi = swapLTR.randomBC.values
+        for comb in combinations(umi_edi,2):
+            if editdistance.eval(comb[0],comb[1]) < 3:
+                _new_ = swapLTR[swapLTR.randomBC.isin(list(comb))]
+                swapLTR_edit = (_new_[_new_.seq_count == _new_.seq_count.max() ]).reset_index(drop=True)
+                swapLTR_edit.loc[0,'seq_count'] = _new_.seq_count.sum()
+                swapLTR = swapLTR[~swapLTR.randomBC.isin(list(comb))]
+                swapLTR = pd.concat([swapLTR_edit,swapLTR],sort=False)
+                swapLTR = swapLTR.dropna() 
         
         swapLTR.columns = swapLTR.columns.get_level_values(0)
         test2 = swapLTR[['association_ID','seq_count']].copy().groupby('association_ID').sum()
@@ -311,10 +302,6 @@ def swap_LTR(job_id, data_slice, return_dict, events):
         events[gb.iloc[0].genomic_coordinates] = [reads,umi_removed,{ x : gb[gb.association_ID == x].seq_count.values for x in contaminating},source_T,gb.iloc[0].genomic_coordinates]
         return_dict[gb.iloc[0].genomic_coordinates] = swapLTR
 
-'''
-
-
-'''
 
 
 def swappy_LC(data, job_number, threshold=3.2):
@@ -573,7 +560,7 @@ def stats(df,final,genom_grouped,stats1,stats2):
         sq_times2['Percentage %'] = sq_times2['Number of times found']/sq_times2['Number of times found'].sum()*100
         fig2 = plt.figure()
         ax3 = fig2.add_subplot(111)
-        ax3 = sq_times.plot(kind='barh', legend=False)
+        ax3 = sq_times2.plot(kind='barh', legend=False)
         plt.xscale('log')
         ax3.set_title('Sequence count found with LC index Switching in pool {x}'.format(x=contaminationFile.split('.')[0]), fontsize=8,y=1.13)
         ax3.set_xlabel('Value (Log10)')
@@ -708,7 +695,7 @@ if __name__ == "__main__":
     ######## Wabbling #################################
     ###################################################
     print('> Wabbling', end='')
-    step3 = swappy_wabbly(step2, jobs)
+    step3 = swappy_wabbly(step2, jobs) 
     print('\t\t['+ bcolors.OKGREEN + ' Done ' + bcolors.ENDC + ']')
 
     ##### ASSEMBLING
