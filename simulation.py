@@ -16,7 +16,6 @@ def Sofi():
 	Construct = chrom+"_"+str(position)
 	return Construct[0]
 
-
 def GammaDistribution():	
 	shape, scale = 2., 2. 
 	s = np.random.gamma(shape, scale, 1000)
