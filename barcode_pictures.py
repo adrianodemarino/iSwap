@@ -29,8 +29,8 @@ def humanSorted(l):
 df = pd.read_csv(file,sep='\t').drop_duplicates()
 
 #First Picture#################################################################
-a = pd.pivot_table(df,values="expected",columns="bc2",index="bc1").fillna(0)
-a = a.reindex(index=humanSorted(df.bc1.unique()), columns=humanSorted(df.bc2.unique()))
+a = pd.pivot_table(df,values="used",columns="bc2",index="bc1")
+#a = a.reindex(index=humanSorted(df.bc1.unique()), columns=humanSorted(df.bc2.unique()))
 f, ax = plt.subplots(figsize=(18, 12))
 
 colors = ["gray", "cyan", "green"]
@@ -43,11 +43,18 @@ _ = sns.heatmap(a, cmap=cmap,square=True,  linewidths=.5, cbar_kws={"shrink": .5
 colorbar = ax.collections[0].colorbar
 colorbar.set_ticks([0.35,0.95,1.65])
 colorbar.set_ticklabels(['Unused combination', 'Expected combination',"Swapped fraction"])
-ax.invert_xaxis()
+#ax.invert_xaxis()
 
 ax.set_xlabel("Barcode 2",fontsize=20)
 ax.set_ylabel("Barcode 1",fontsize=20)
 ax.tick_params(labelsize=11)
+_.set_yticklabels(_.get_yticklabels(), rotation = 0, fontsize = 10)
+# fix for mpl bug that cuts off top/bottom of seaborn viz
+b, t = plt.ylim() # discover the values for bottom and top
+b += 0.5 # Add 0.5 to the bottom
+t -= 0.5 # Subtract 0.5 from the top
+plt.ylim(b, t) # update the ylim(bottom, top) values
+
 
 ax.get_figure().savefig(file.split('.')[0]+'_barcodeStrategy.png',format='png', dpi=500)
 ##########################################################################################
