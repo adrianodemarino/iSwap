@@ -29,11 +29,11 @@ def humanSorted(l):
 df = pd.read_csv(file,sep='\t').drop_duplicates()
 
 #First Picture#################################################################
-a = pd.pivot_table(df,values="used",columns="bc2",index="bc1")
+a = pd.pivot_table(df,values="used",columns="bc2",index="bc1").astype(int)
 #a = a.reindex(index=humanSorted(df.bc1.unique()), columns=humanSorted(df.bc2.unique()))
-f, ax = plt.subplots(figsize=(18, 12))
+f, ax = plt.subplots(figsize=(8, 8))
 
-colors = ["gray", "cyan", "green"]
+colors = ["gray", "cyan", "orange"]
 cmap = LinearSegmentedColormap.from_list('Custom', colors, len(colors))
 
 # Draw the heatmap with the mask and correct aspect ratio
