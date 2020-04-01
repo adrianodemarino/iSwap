@@ -44,13 +44,44 @@ def getSimuNumber (value):
     swap_magnitude = real_magnitude - 2
     return np.random.randint(1*order_i[swap_magnitude],1*order_f[swap_magnitude]) 
 
+df = pd.read_csv("to_predict.tsv",sep="\t")
+df.drop(["LTR","LC"],axis=1,inplace=True)
 df["swap_magnitude"] = df.swapped_reads.apply(lambda x: magnitude(x))
 df["reads_magnitude"] = df["#reads"].apply(lambda x: magnitude(x))
-
+df["barcode"] = abs(df.swap_magnitude-df.reads_magnitude)
 df['barcode'] = df['barcode'].map({1: 'HIGH', 2: 'MEDIUM', 3: 'LOW'}) 
 df = pd.get_dummies(df, prefix='', prefix_sep='') 
+nova = df[df["#reads"] > 1000000]
+hiseq = df[(df["#reads"] < 1000000) & (df["#reads"] > 50000)]
+miseq = df[(df["#reads"] < 50000) & (df["#reads"] > 0)]
+nova["platform"] = "Novaseq"
+hiseq["platform"] = "hiseq"
+miseq["platform"] = "miseq"
+df = pd.concat([nova,hiseq,miseq])
+df = pd.get_dummies(df, prefix='', prefix_sep='') 
+low = df[df.LOW == 1]
+medium  = df[df.MEDIUM == 1] 
+high = df[df.HIGH == 1]
+kapa = []
+for i in range(0,len(medium)): 
+    kapa.append(np.random.randint(16,30))
+medium["Kapa"] = kapa            
+kapa = []
+for i in range(0,len(low)): 
+    kapa.append(np.random.randint(0,15)) 
+low["Kapa"] = kapa            
 
-df = pd.read_csv("to_predict.tsv",sep="\t")
+kapa = []
+for i in range(0,len(high)): 
+    kapa.append(np.random.randint(30,50)) 
+high["Kapa"] = kapa            
+df = pd.concat([low,medium,high])
+df.drop(["swap_magnitude","reads_magnitude"],axis=1,inplace=True)      
+
+
+#test
+
+
 train_df = df.sample(frac=0.8,random_state=0)
 test_df = df.drop(train_df.index)
 #_ =sns.pairplot(train_df[["swapped_reads", "#reads","swap_magnitude","reads_magnitude","barcode"]], diag_kind="kde")
@@ -107,7 +138,7 @@ plotter.plot({'Early Stopping': early_history}, metric = "mae")
 loss, mae, mse = model.evaluate(normed_test_data, test_labels, verbose=2)
 print("Testing set Mean Abs Error: {:5.2f} swapped_reads".format(mae))
 test_predictions = model.predict(normed_test_data).flatten()
-a = plt.axes(aspect='equal')
+a = plt.axes(aspect='equaal')
 _ = plt.scatter(test_labels, test_predictions)
 error = test_predictions - test_labels
 _ = plt.hist(error, bins = 25)
